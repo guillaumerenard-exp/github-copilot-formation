@@ -322,88 +322,86 @@ Crée une issue GitHub pour chaque bug identifié dans ce fichier de logs
 # Copilot CLI — Installation
 
 ```bash
-# Prérequis : GitHub CLI installé
-gh extension install github/gh-copilot
+# Windows (PowerShell)
+winget install GitHub.Copilot
 
-# Vérification
-gh copilot --version
+# macOS / Linux
+brew install copilot-cli
+# ou : curl -fsSL https://gh.io/copilot-install | bash
+
+# Lancer une session interactive
+copilot
 ```
 
-**Deux commandes principales** :
+> Remplace l'ancienne extension `gh copilot` (deprecated oct. 2025).
+> C'est un **agent complet** dans le terminal — pas juste suggest/explain.
 
-| Commande | Usage |
+---
+
+# Copilot CLI — Interface interactive
+
+Lancez `copilot` dans un dossier de code et conversez en langage naturel :
+
+```
+> Montre-moi les commits de cette semaine et résume-les
+
+> Trouve tous les fichiers modifiés il y a moins de 24h
+
+> Crée une branche, corrige le bug #42, et ouvre une PR
+```
+
+**Deux modes** (basculer avec `Shift+Tab`) :
+
+| Mode | Comportement |
 |---|---|
-| `gh copilot suggest` | Trouver la bonne commande shell |
-| `gh copilot explain` | Comprendre une commande existante |
+| **Ask / Execute** | Copilot propose des actions, vous validez une par une |
+| **Plan** | Copilot construit un plan structuré avant d'agir |
+
+> Copilot demande votre approbation avant chaque action destructrice.
 
 ---
 
-# `gh copilot suggest`
+# Copilot CLI — Usage programmatique
 
-> *"Je sais ce que je veux faire, pas comment le faire."*
+Pour des tâches ponctuelles sans entrer en mode interactif :
 
 ```bash
-gh copilot suggest "lister tous les conteneurs Docker en cours d'exécution"
-```
-```
-docker ps
-
-? What would you like to do?
-> Copy command to clipboard
-  Explain command
-  Revise command
-  Exit
+copilot -p "Revert the last commit" --allow-tool='shell(git)'
 ```
 
 ```bash
-gh copilot suggest "trouver tous les fichiers modifiés il y a moins de 24h"
-# → find . -mtime -1 -type f
+copilot -p "Liste les issues ouvertes qui me sont assignées"
 ```
 
-> Supporte les commandes `shell`, `git` et `gh` — précisez le type si besoin.
+**Options de contrôle** :
+
+| Option | Effet |
+|---|---|
+| `--allow-tool='shell(git)'` | Autorise uniquement les commandes git |
+| `--deny-tool='shell(rm)'` | Interdit les commandes rm |
+| `--allow-all-tools` | Autorise tout (attention !) |
+
+> Idéal pour intégrer Copilot dans des scripts ou des workflows CI.
 
 ---
 
-# `gh copilot explain`
+# Copilot CLI — Fonctionnalités clés
 
-> *"Je vois cette commande, je ne comprends pas ce qu'elle fait."*
+**Ce que l'agent peut faire** :
+- Lire et modifier du code dans votre projet
+- Exécuter des commandes shell (avec votre accord)
+- Interagir avec GitHub : issues, PRs, Actions
+- Utiliser des serveurs MCP configurés
+- Gérer automatiquement le contexte (sessions quasi-infinies)
 
-```bash
-gh copilot explain "git rebase -i HEAD~3"
-```
-```
-This command starts an interactive rebase for the last 3 commits.
-It opens an editor where you can:
-  - reword  : change a commit message
-  - squash  : merge commits together
-  - drop    : remove a commit entirely
-  ...
-```
+**Commandes slash utiles** :
 
-```bash
-gh copilot explain "awk '{print $2}' access.log | sort | uniq -c | sort -rn | head"
-```
-
-> Idéal pour déboguer des scripts shell complexes ou auditer des commandes inconnues.
-
----
-
-# Copilot CLI — Alias utiles
-
-Configurez des alias pour aller plus vite :
-
-```bash
-# Dans votre .bashrc / .zshrc / $PROFILE PowerShell
-alias '??'='gh copilot suggest'
-alias 'git?'='gh copilot suggest -t git'
-alias 'explain'='gh copilot explain'
-```
-
-**Après config** :
-```bash
-?? "compresser un dossier en tar.gz en excluant node_modules"
-git? "annuler le dernier commit sans perdre les modifications"
-```
+| Commande | Action |
+|---|---|
+| `/model` | Changer de modèle (Claude Sonnet 4.5, GPT-5…) |
+| `/compact` | Compresser le contexte manuellement |
+| `/mcp` | Voir les serveurs MCP connectés |
+| `/feedback` | Envoyer un retour à GitHub |
 
 ---
 
